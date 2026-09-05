@@ -2912,6 +2912,11 @@
     }
   }
 }
+.chat-bubble-primary textarea,
+.chat-bubble-primary input,
+.chat-bubble-primary select {
+  color: var(--color-base-content);
+}
 @layer base {
   :root {
     --page-has-backdrop: var(--page-scroll-lock) 1;

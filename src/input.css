@@ -44,3 +44,16 @@
   --noise: 0;
 }
 
+/* chat-bubble-primary sets `color` (text colour) to --color-primary-content
+ * (a light colour, for readable text against the dark bubble background)
+ * for the *whole* bubble. Native form controls (textarea/input/select) use
+ * `color: inherit` by default, so they were inheriting that light text
+ * colour while keeping their own light background (base-100) — light text
+ * on a light background, invisible. Force them back to normal body text
+ * colour so anything typed/edited inside a chat bubble is actually legible. */
+.chat-bubble-primary textarea,
+.chat-bubble-primary input,
+.chat-bubble-primary select {
+  color: var(--color-base-content);
+}
+

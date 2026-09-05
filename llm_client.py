@@ -21,13 +21,14 @@ infer-category.md, contest-evidence.md), neither changes existing callers:
    entirely for anything using it. When response_schema is set, call_llm
    returns the ALREADY-PARSED dict, not a string — check the return type
    at call sites.
-   OpenRouter path: does not currently wire this through (OpenRouter's
-   OpenAI-compatible layer has its own `response_format` shape, which may
-   or may not map cleanly to output_config.format — unverified, flagged
-   as a TODO below rather than guessed at). If you're on OpenRouter and
-   need structured output today, prompt for JSON explicitly in the system
-   prompt and parse defensively (strip ```json fences, try/except) at the
-   call site instead of relying on this parameter.
+   OpenRouter path: now wired through too (see the `PROVIDER == "openrouter"`
+   branch below) — sends `response_format: {type: "json_schema", ...}`,
+   OpenRouter's OpenAI-compatible equivalent, confirmed current against
+   openrouter.ai/docs/features/structured-outputs. Unlike the Anthropic
+   path, the parsed result IS wrapped in try/except with a ```json fence
+   stripped as a fallback, since OpenRouter's own docs say schema
+   enforcement strictness varies by the underlying provider it routes to —
+   it's a strong hint on some endpoints, a hard guarantee on others.
 
 2. `image_or_pdf_block()` helper — builds a Messages API content block
    from raw file bytes, for the file-upload flow (message screenshots,
@@ -155,20 +156,56 @@ def call_llm(
     """
 
     if PROVIDER == "openrouter":
-        if response_schema is not None:
-            # See CHANGE LOG above — not wired through for this provider yet.
-            raise NotImplementedError(
-                "response_schema is not implemented for LLM_PROVIDER=openrouter. "
-                "Prompt for JSON explicitly and parse defensively at the call site, "
-                "or switch LLM_PROVIDER=anthropic for this endpoint."
-            )
-        response = _openrouter_client.chat.completions.create(
+        create_kwargs = dict(
             model=OPENROUTER_MODEL,
             max_tokens=max_tokens,
             messages=[{"role": "system", "content": system_prompt}] + messages,
             extra_body={"zdr": True},  # see PRIVACY NOTE above
         )
-        return response.choices[0].message.content
+
+        if response_schema is not None:
+            # OpenRouter's OpenAI-compatible layer takes response_format with
+            # type "json_schema" (confirmed against openrouter.ai/docs/features/
+            # structured-outputs) — this previously raised NotImplementedError
+            # here unconditionally, which broke every endpoint that passes
+            # response_schema (build-evidence-list, infer-category,
+            # build-contest-evidence) whenever LLM_PROVIDER=openrouter.
+            # "strict": True asks the provider to enforce the schema exactly,
+            # matching output_config.format's guarantee on the Anthropic path.
+            create_kwargs["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "response",
+                    "strict": True,
+                    "schema": response_schema,
+                },
+            }
+
+        response = _openrouter_client.chat.completions.create(**create_kwargs)
+        text = response.choices[0].message.content
+
+        if response_schema is not None:
+            import json
+
+            # Unlike the Anthropic structured-outputs path, OpenRouter's
+            # schema enforcement varies by underlying provider (see
+            # OpenRouter's own docs: "some guarantee schema-conforming
+            # output, while others treat it as a strong hint") — so, unlike
+            # the Anthropic branch below, this IS wrapped defensively rather
+            # than assumed to always parse cleanly.
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError:
+                # Strip a ```json ... ``` fence if the model added one anyway.
+                stripped = text.strip()
+                if stripped.startswith("```"):
+                    stripped = stripped.split("```", 2)[1]
+                    if stripped.startswith("json"):
+                        stripped = stripped[4:]
+                    stripped = stripped.strip().rstrip("`").strip()
+                return json.loads(stripped)
+
+        return text
 
     # default: direct Anthropic API
     output_config: dict = {"effort": effort}
