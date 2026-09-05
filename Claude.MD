@@ -351,3 +351,77 @@ Possible escalation topics include:
 - Foreign-law issue
 - Serious contradiction
 - Matter outside SCT scope
+
+## Eligibility and pre-filing screening workflow
+
+The prototype must include a structured pre-filing screening flow before the user proceeds with claim preparation.
+
+The screening flow should cover:
+
+1. Parties and entity details
+2. Nature of the dispute
+3. Service and respondent location
+4. Contractual relationship
+5. ACRA status and registered address
+6. Possible mediation or arbitration clauses
+7. Whether the claim involves a restricted subject matter
+8. Whether the user is seeking an available type of order
+
+The questions must be asked conditionally. Do not show every question to every user.
+
+### Parties and entity details
+
+The system may need to ask:
+
+- Are you claiming as an individual?
+- If not, are you claiming as a corporate entity?
+- Is your corporate entity in liquidation or winding-up?
+- Are you claiming against the correct party with whom you have a contractual obligation?
+- Is the other party an individual?
+- Is the other party a corporate entity?
+- Is the other party in liquidation or winding-up?
+- Do you have a recent ACRA record showing the entity’s address and status?
+- Is there a mediation or arbitration clause in the agreement?
+
+If an ACRA record is required, explain that the user should obtain the current record from the official ACRA website. Do not imply that the prototype can verify the entity unless it is connected to an authoritative, current source.
+
+### Nature of dispute
+
+The system may need to ask:
+
+- Are you the owner of the property?
+- Did the cause of action arise on or before the relevant date specified by the current official SCT guidance?
+- Did the damage arise out of or in connection with a motor vehicle?
+- Are you seeking a money order, work order, and/or an order for delivery of vacant possession?
+
+If an answer suggests that the SCT may not have jurisdiction:
+
+- Do not allow the assistant to state a definitive legal conclusion unless supported by the current official source.
+- Display that the matter may fall outside SCT jurisdiction.
+- Link to the relevant official source.
+- Recommend checking with the Singapore Courts or obtaining appropriate legal advice.
+
+### Service
+
+The system may need to ask:
+
+- Is the party or company located in Singapore?
+- Does the party have a registered address in Singapore?
+- Are you able to locate and personally serve or bring the claim to the other party’s attention in Singapore?
+
+Service questions must be treated as procedural screening prompts, not as a guarantee that service will be valid.
+
+### Source-control requirement
+
+All jurisdiction, eligibility, date, claim-limit, entity-status, service, and available-remedy questions must be stored with:
+
+- Official source URL
+- Source title
+- Date last reviewed
+- Applicable process or claim type
+- Version or notes
+- Review status
+
+Do not rely on Claude’s general memory for these questions.
+
+If a question contains a date, deadline, limit, fee, or jurisdictional rule, verify it against the current official source before displaying it to users.
