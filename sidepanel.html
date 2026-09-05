@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="minlaw">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,6 +56,20 @@
       🎤 Tap to Speak (Voice Input)
     </button>
   </footer>
+
+  <!-- 5. Backend connection settings (collapsed by default) — needed because the
+       extension runs in your local Chrome, not inside this dev environment, so
+       "localhost" here won't reach a remotely-hosted backend. Change the URL below
+       to match wherever main.py is actually running/forwarded from. -->
+  <details class="bg-base-100 p-3 rounded-box shadow-md text-xs">
+    <summary class="cursor-pointer font-semibold text-base-content/70">Backend connection settings</summary>
+    <div class="flex gap-2 mt-2">
+      <input id="api-base-input" type="text" placeholder="http://localhost:8000"
+             class="input input-bordered input-sm w-full text-xs" />
+      <button id="api-base-save" class="btn btn-secondary btn-sm">Save</button>
+    </div>
+    <div id="api-base-status" class="mt-1 opacity-70"></div>
+  </details>
 
   <script src="./sidepanel.js"></script>
 </body>

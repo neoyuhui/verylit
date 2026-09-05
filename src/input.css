@@ -1,3 +1,46 @@
 @import "tailwindcss";
-@plugin "daisyui";
+
+/* Neutral, minimalistic "paper & ink" theme — matches the earlier MinLaw
+ * extension's palette instead of daisyUI's default light-blue "light" theme.
+ * Edit the colours below (not sidepanel.html) to restyle the whole UI. */
+@plugin "daisyui" {
+  themes: minlaw --default;
+}
+@plugin "daisyui/theme" {
+  name: "minlaw";
+  default: true;
+  color-scheme: light;
+
+  --color-base-100: #FFFFFF;   /* cards / raised surfaces (--paper-raised) */
+  --color-base-200: #F7F5F1;   /* page background (--paper) */
+  --color-base-300: #D8DEE4;   /* borders / dividers (--line) */
+  --color-base-content: #1F2A37; /* body text (--ink) */
+
+  --color-primary: #1F2A37;       /* main CTAs — dark ink, not blue */
+  --color-primary-content: #F7F5F1;
+  --color-secondary: #4B5563;     /* secondary buttons (--ink-soft) */
+  --color-secondary-content: #FFFFFF;
+  --color-accent: #A6752C;        /* gold accent, used sparingly (--gold) */
+  --color-accent-content: #FFFFFF;
+  --color-neutral: #4B5563;
+  --color-neutral-content: #FFFFFF;
+
+  --color-info: #3B6FA0;
+  --color-info-content: #FFFFFF;
+  --color-success: #2F6F62;
+  --color-success-content: #FFFFFF;
+  --color-warning: #A6752C;
+  --color-warning-content: #1F2A37;
+  --color-error: #9B4A3F;
+  --color-error-content: #FFFFFF;
+
+  --radius-selector: 0.25rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
 

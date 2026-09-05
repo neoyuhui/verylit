@@ -13,9 +13,20 @@
  * display are all left as the disabled/decorative controls already in
  * sidepanel.html — wire them up as their own follow-ups.
  *
- * CONFIGURE THIS BEFORE LOADING THE EXTENSION:
+ * BACKEND URL: configurable at runtime via the "Backend connection settings"
+ * panel in sidepanel.html (persisted in chrome.storage.local), because this
+ * extension runs in your local Chrome while the backend may be running
+ * remotely (e.g. a Codespace) — "localhost" only works if the backend is on
+ * the same machine as the browser. See CLAUDE.md "Local dev" for details.
  */
-const API_BASE_URL = "http://localhost:8000"; // change to your forwarded Codespaces URL if not running locally — see CLAUDE.md "Local dev"
+// Defaults to this Codespace's forwarded backend URL (already allow-listed in
+// manifest.json's host_permissions) since the extension runs in your local
+// Chrome, not inside the Codespace — "localhost" here would not resolve to
+// it. If you run the backend locally instead, change this via the "Backend
+// connection settings" panel in the side panel (saved across sessions).
+const DEFAULT_API_BASE_URL = "https://opulent-capybara-97r5w4r6wx9rfxx69-8000.app.github.dev";
+const API_BASE_KEY = "cjts_api_base_url";
+let API_BASE_URL = DEFAULT_API_BASE_URL;
 
 /* ---------------------------------------------------------------------
  * State
@@ -72,6 +83,52 @@ async function clearState() {
   } catch (e) {
     console.warn("Could not clear session state:", e);
   }
+}
+
+/* ---------------------------------------------------------------------
+ * Backend URL settings — persisted across sessions (unlike the case state,
+ * which is intentionally chrome.storage.session) since it's a per-install
+ * connection setting, not case data.
+ * ------------------------------------------------------------------- */
+async function loadApiBase() {
+  try {
+    if (chrome?.storage?.local) {
+      const result = await chrome.storage.local.get(API_BASE_KEY);
+      return result?.[API_BASE_KEY] || DEFAULT_API_BASE_URL;
+    }
+  } catch (e) {
+    console.warn("Could not read saved API base URL:", e);
+  }
+  return DEFAULT_API_BASE_URL;
+}
+
+async function saveApiBase(url) {
+  try {
+    if (chrome?.storage?.local) {
+      await chrome.storage.local.set({ [API_BASE_KEY]: url });
+    }
+  } catch (e) {
+    console.warn("Could not persist API base URL:", e);
+  }
+}
+
+function initApiBaseSettings() {
+  const input = document.getElementById("api-base-input");
+  const saveBtn = document.getElementById("api-base-save");
+  const status = document.getElementById("api-base-status");
+  if (!input || !saveBtn) return;
+
+  input.value = API_BASE_URL;
+  saveBtn.addEventListener("click", async () => {
+    const val = input.value.trim().replace(/\/$/, "");
+    if (!val) return;
+    API_BASE_URL = val;
+    await saveApiBase(val);
+    if (status) {
+      status.textContent = "Saved. New requests will use this backend URL.";
+      setTimeout(() => { status.textContent = ""; }, 3000);
+    }
+  });
 }
 
 /* ---------------------------------------------------------------------
@@ -482,6 +539,9 @@ function startStep5() {
  * Boot
  * ------------------------------------------------------------------- */
 async function boot() {
+  API_BASE_URL = await loadApiBase();
+  initApiBaseSettings();
+
   const saved = await loadState();
   if (saved && (saved.prompt1Output || saved.evidenceRows?.length)) {
     addBubble("assistant", `
