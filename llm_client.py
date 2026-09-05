@@ -182,7 +182,21 @@ def call_llm(
             }
 
         response = _openrouter_client.chat.completions.create(**create_kwargs)
-        text = response.choices[0].message.content
+        choice = response.choices[0]
+        text = choice.message.content
+
+        # finish_reason == "length" means the model hit max_tokens before it
+        # finished writing — for a JSON response that means the string was
+        # cut off mid-value, which json.loads() then reports as a cryptic
+        # "Unterminated string starting at: ..." error. Catch it here with
+        # an actionable message instead of letting that surface to the UI.
+        if choice.finish_reason == "length":
+            raise RuntimeError(
+                f"The model's response was cut off before it finished "
+                f"(hit max_tokens={max_tokens}). Raise max_tokens for this "
+                f"call in main.py and try again — the account/evidence list "
+                f"is likely too long for the current limit."
+            )
 
         if response_schema is not None:
             import json
@@ -203,7 +217,14 @@ def call_llm(
                     if stripped.startswith("json"):
                         stripped = stripped[4:]
                     stripped = stripped.strip().rstrip("`").strip()
-                return json.loads(stripped)
+                try:
+                    return json.loads(stripped)
+                except json.JSONDecodeError as e:
+                    # Not a truncation (already ruled out above) — a genuinely
+                    # malformed response. Surface enough of the raw text to
+                    # debug from server logs without dumping it to the user.
+                    print(f"[llm_client] JSON parse failed after fence-strip: {e}. Raw text (first 500 chars): {text[:500]!r}")
+                    raise
 
         return text
 
@@ -219,6 +240,18 @@ def call_llm(
         messages=messages,
         output_config=output_config,
     )
+
+    # stop_reason == "max_tokens" means the same truncation failure mode as
+    # the OpenRouter path above — the model was cut off before finishing,
+    # which for a JSON response turns into json.loads() raising "Unterminated
+    # string starting at: ...". Catch it here with an actionable message.
+    if response.stop_reason == "max_tokens":
+        raise RuntimeError(
+            f"The model's response was cut off before it finished "
+            f"(hit max_tokens={max_tokens}). Raise max_tokens for this "
+            f"call in main.py and try again — the account/evidence list "
+            f"is likely too long for the current limit."
+        )
 
     text = response.content[0].text
 

@@ -212,10 +212,15 @@ async def build_evidence_list(
             "additionalProperties": False,
         }
 
+        # Raised from 2048: this endpoint returns one JSON object per
+        # distinct fact in the account, and got cut off mid-string ("Failed:
+        # Unterminated string starting at: ...") for accounts with more than
+        # a handful of facts or uploaded files. 4096 matches build-contest-
+        # evidence's ceiling below, which produces a similarly-shaped payload.
         parsed = call_llm(
             EVIDENCE_LIST_PROMPT,
             [{"role": "user", "content": content_blocks}],
-            max_tokens=2048,
+            max_tokens=4096,
             response_schema=schema,
         )
 
@@ -382,10 +387,14 @@ async def build_contest_evidence(
             "additionalProperties": False,
         }
 
+        # Raised from 3072 for the same reason as build-evidence-list above:
+        # this endpoint's schema has five separate arrays (new_rows,
+        # already_covered, points_to_check, inconsistencies, plus a closing
+        # string), which adds up fast for a well-populated evidence list.
         parsed = call_llm(
             prompt,
             [{"role": "user", "content": content_blocks}],
-            max_tokens=3072,
+            max_tokens=4096,
             response_schema=schema,
         )
 
