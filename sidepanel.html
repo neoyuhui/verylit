@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CJTS Legal Co-Pilot</title>
+  <!-- Link your compiled Tailwind / daisyUI CSS -->
+  <link rel="stylesheet" href="./dist/output.css">
+</head>
+<body class="bg-base-200 min-h-screen flex flex-col font-sans p-4 gap-4">
+  <!-- 1. Header & Language Selector -->
+  <header class="navbar bg-base-100 rounded-box shadow-md px-4">
+    <div class="flex-1">
+      <h1 class="text-lg font-bold text-primary">⚖️ CJTS Co-Pilot</h1>
+    </div>
+    <div class="flex-none">
+      <select class="select select-bordered select-sm w-full max-w-xs">
+        <option selected>English</option>
+        <option>华语 (Mandarin)</option>
+        <option>Bahasa Melayu</option>
+        <option>தமிழ் (Tamil)</option>
+      </select>
+    </div>
+  </header>
+  <!-- 2. Step Progress Bar -->
+  <div class="bg-base-100 p-4 rounded-box shadow-md">
+    <ul class="steps steps-vertical sm:steps-horizontal w-full text-xs">
+      <li class="step step-primary">Eligibility</li>
+      <li class="step">Entity Check</li>
+      <li class="step">Fact Intake</li>
+      <li class="step">Summary</li>
+    </ul>
+  </div>
+  <!-- 3. Chat Messages Area -->
+  <main class="flex-1 bg-base-100 p-4 rounded-box shadow-md overflow-y-auto flex flex-col gap-3 max-h-[400px]">
+    
+    <!-- AI Welcome Message -->
+    <div class="chat chat-start">
+      <div class="chat-header text-xs text-gray-500 mb-1">Co-Pilot Assistant</div>
+      <div class="chat-bubble chat-bubble-primary text-sm">
+        Hello! I can help you prepare your Small Claims Tribunals (SCT) filing on CJTS. Would you like to check your claim eligibility first?
+      </div>
+    </div>
+    <!-- Example User Message -->
+    <div class="chat chat-end">
+      <div class="chat-header text-xs text-gray-500 mb-1">You</div>
+      <div class="chat-bubble bg-gray-200 text-gray-800 text-sm">
+        Yes, I want to claim $5,000 for unpaid design work.
+      </div>
+    </div>
+  </main>
+  <!-- 4. Input Controls -->
+  <footer class="bg-base-100 p-3 rounded-box shadow-md flex flex-col gap-2">
+    <div class="flex gap-2">
+      <input type="text" placeholder="Type your answer or claim detail..." class="input input-bordered w-full text-sm" />
+      <button class="btn btn-primary text-white">Send</button>
+    </div>
+    <button class="btn btn-outline btn-accent w-full gap-2">
+      🎤 Tap to Speak (Voice Input)
+    </button>
+  </footer>
+</body>
+</html>

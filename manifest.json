@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "CJTS Legal Co-Pilot",
+  "version": "1.0",
+  "description": "AI-assisted guidance for Self-Represented Persons navigating the Singapore Small Claims Tribunals.",
+  "permissions": [
+    "sidePanel",
+    "storage"
+  ],
+  "action": {
+    "default_title": "Open CJTS Co-Pilot"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
