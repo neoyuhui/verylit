@@ -1,309 +1,353 @@
-# CJTS SRP Guidance Assistant
+## Updated product direction
 
-## Project goal
+The product is a safety-first CJTS preparation and claim-readiness assistant.
 
-Build a Chrome Extension prototype for Singapore self-represented persons (SRPs) using the Community Justice and Tribunals System (CJTS) and Small Claims Tribunals (SCT).
+It must not simply generate a persuasive claim. It should help the SRP:
 
-The extension should help users:
+1. Tell the story in their own words
+2. Distinguish facts from assumptions and inferences
+3. Organise parties, agreement, issues, chronology, remedy, and evidence
+4. Check whether important information is known, unclear, missing, or unverified
+5. Identify contradictions
+6. Consider the respondent’s likely position
+7. Identify evidence that supports or undermines each material assertion
+8. Prepare a factual draft and evidence bundle for user review
+9. Verify procedural information against official sources
+10. Escalate uncertain or legally complex matters to appropriate human or official assistance
 
-- Check whether their issue may be connected to Singapore
-- Understand whether the SCT may be the appropriate process
-- Select an issue category
-- Answer simple guided questions
-- Explain what happened in their own words
-- Use speech-to-text
-- Use English, Mandarin, Malay, or Tamil
-- Organise documents and evidence
-- Build a timeline of events
-- Identify missing information
-- Understand CJTS form fields
-- Review information before submission
-- Understand basic post-filing steps
+The system must begin by checking whether the matter appears connected to Singapore and whether the Small Claims Tribunals may be the appropriate forum.
 
-This is an independent hackathon prototype. It is not affiliated with or endorsed by the Singapore Courts.
+## Core workflow
 
-## Important legal boundaries
+Use this workflow:
 
-Do not present the assistant as a lawyer, court officer, or official Singapore Courts service.
+1. Scope and disclaimer
+2. Jurisdiction and forum screening
+3. User’s original account
+4. Preliminary fact extraction
+5. Clarification questions
+6. Evidence upload and categorisation
+7. Verification and contradiction detection
+8. Mandatory counter-argument challenge
+9. Pre-filing readiness check
+10. Preparation of chronology, issue matrix, checklist, and factual draft
+11. User confirmation
+12. Official-source links and escalation options
 
-Do not:
+Do not allow the user to skip the safety and verification steps before generating a final factual draft.
 
-- Give definitive legal advice
-- Predict whether a user will win
-- Decide that a claim is valid or invalid
-- Invent legal rules, deadlines, fees, documents, or procedures
-- Fabricate, alter, strengthen, or delete evidence
-- Create fake receipts, messages, photographs, contracts, or screenshots
-- Encourage users to hide unfavourable facts
-- Submit anything to CJTS automatically
-- Ask users for Singpass passwords, OTPs, banking credentials, or private keys
+## Scope and disclaimer
 
-Use wording such as:
+At the start, display:
 
-- “This may be relevant to check.”
-- “The official Singapore Courts guidance says…”
-- “You may need to confirm this.”
-- “I cannot determine whether your claim will succeed.”
-- “This is procedural guidance, not legal advice.”
+“This tool is an independent prototype. It does not provide legal advice, does not determine whether you will win, and is not affiliated with the Singapore Courts. It helps organise your account, identify missing information, and check procedural readiness. You remain responsible for verifying and submitting your information.”
 
-The user must remain responsible for checking and submitting their own information.
+The assistant should explain that a preliminary readiness check is not a legal opinion or guarantee that a claim will succeed.
 
-## Jurisdiction-first flow
+## User’s original account
 
-Before guiding the user through a claim, ask:
+Begin with:
 
-1. What country is connected to the dispute?
-2. Where is the respondent located?
-3. Where did the incident or transaction happen?
-4. Is the user trying to file in Singapore?
-5. What type of dispute is involved?
-6. Does the user know whether the matter belongs in the SCT?
+“Tell me what happened in your own words. You may include incomplete details, emotions, uncertainty, or typos. We will organise and verify the information later.”
 
-If the matter may be outside Singapore or outside the SCT:
+Preserve the original account exactly.
 
-- Do not continue as if it is definitely an SCT matter.
-- Explain what is uncertain.
-- Link to an official source.
-- Suggest checking with the Singapore Courts or an appropriate legal adviser.
+Do not immediately rewrite it into legal or persuasive language.
 
-Do not make an eligibility decision without a reliable official source.
+Store separately:
 
-## Chatbot behaviour
-
-Use a structured interview instead of immediately generating long answers.
-
-Ask one or two questions at a time in this order:
-
-1. Jurisdiction
-2. Current stage
-3. Issue category
-4. Claimant details
-5. Respondent details
-6. Chronology of events
-7. Loss or remedy requested
-8. Evidence available
-9. Missing information
-10. Final review
-
-Possible issue categories:
-
-- Refund or unpaid payment
-- Defective goods
-- Poor or incomplete service
-- Repair or renovation dispute
-- Tenancy or premises dispute
-- Contract disagreement
-- Delivery or purchase dispute
-- Business or company dispute
-- Unsure where to file
-
-For each answer, separate:
-
-- Facts supplied by the user
-- Assumptions
+- Original user account
+- Transcription
+- Extracted facts
+- Inferences
 - Uncertainties
-- Missing information
-- Suggested next step
+- User-confirmed facts
+- Draft factual summary
 
-When the user asks “Will I win?” or “Can I sue them?”, do not give a yes/no prediction.
+## Fact extraction
 
-Instead, identify:
+After the user gives their account, produce a preliminary understanding.
 
-- Facts supporting the user’s account
-- Facts that may create difficulty
-- What the other party might say
-- Missing information
-- Documents that may help establish what happened
-- What should be verified officially
+Use categories such as:
 
-## Voice-to-text behaviour
-
-Speech recognition and AI summarisation are separate steps.
-
-The flow must be:
-
-1. User speaks
-2. Browser or speech service creates a transcription
-3. User reviews and edits the transcription
-4. Claude organises the facts
-5. User confirms the organised summary
-6. The system optionally creates draft wording for review
-
-Always display:
-
-“Here is what I understood. Please correct anything that is inaccurate.”
-
-Never silently convert the user’s words into stronger legal language.
-
-Preserve:
-
-- Original transcription
-- Corrected transcription
-- AI-organised summary
-- Final user-approved version
-
-The user must be able to edit, reject, or redo the transcription.
-
-## Evidence handling
-
-The evidence organiser may store:
-
-- File name
-- File type
-- Date
-- Related event
-- User-written description
-- Original, copy, screenshot, photograph, receipt, message, or contract classification
-- Optional notes
-
-The system may suggest categories, but the user must confirm them.
-
-Do not interpret evidence as legally conclusive.
-
-Generate:
-
-- A factual timeline
-- A document checklist
-- Missing-information prompts
-- Possible contradictions for the user to review
-
-Do not generate legal conclusions.
-
-## Language support
-
-Support:
-
-- English
-- Mandarin
-- Malay
-- Tamil
-
-Preserve accurately:
-
-- Names
-- Dates
+- Parties
+- Agreement or transaction
+- Chronology
+- Main issue
+- Requested outcome
 - Amounts
-- Addresses
-- Claimant/respondent distinctions
-- Procedural terminology
+- Documents mentioned
+- Missing information
+- Possible contradictions
+- Inferences requiring verification
 
-Show important English legal or procedural terms alongside translated explanations where possible.
+This categorisation is non-exhaustive and must not be presented as a complete legal test.
 
-Do not silently translate or alter uploaded evidence.
+Use language such as:
 
-## Walkthrough behaviour
+“This is a preliminary organisation of the information you provided. It is not a legal assessment or conclusion.”
 
-The walkthrough should explain:
+Do not say that the user “fulfils” the SCT conditions unless each condition has been verified against an official source and the wording is appropriately qualified.
 
-- What each field asks for
-- Why the field may matter
-- An example
-- Common mistakes
-- How to ask for help
-- How to skip the step
+## Facts, inferences, and uncertainty
 
-Use semantic matching in this order:
+Every extracted statement must be classified as one of:
 
-1. Accessible labels
-2. Visible text
-3. Nearby headings
-4. Form labels
-5. Field attributes
-6. CSS selectors as a fallback
+- User-stated fact
+- Document-supported fact
+- Officially verified procedural fact
+- Inference
+- Assumption
+- Contradiction
+- Missing information
+- Unverified information
 
-If a field cannot be found:
+Use visible labels.
 
-- Do not click a guessed element.
-- Tell the user the page may have changed.
-- Give manual instructions.
-- Let the user continue manually.
-- Log the failure for debugging.
+Example:
 
-Never overwrite user-entered information without confirmation.
+User-stated fact:
+“The photographer refused to provide the raw photographs.”
 
-Require explicit confirmation before:
+Inference detected:
+“You suggested that the photographer’s health condition caused the poor photographs.”
 
-- Payment
-- Declaration
-- Filing
-- Submission
-- Any irreversible action
+Clarification:
+“Do you have evidence supporting that connection, such as a message from the photographer or another record?”
 
-## Privacy and security
+Never convert an inference into a fact.
 
-Treat all user information as sensitive.
+Never write:
 
-Prefer local browser storage for the prototype.
+“His scoliosis caused him to perform the contract inadequately.”
 
-Clearly show:
+Unless the user specifically states this and reliable evidence supports it, write:
 
-- What is processed locally
-- What is sent to an AI model
-- What is stored
-- How it can be deleted
+“You stated that you believe his health condition affected the photographs. This connection has not been verified.”
 
-Before sending sensitive text or documents to an external AI service, warn the user and offer redaction.
+## Mandatory clarification questions
 
-Do not collect unnecessary:
+Ask clarification questions before producing a final factual summary.
 
-- NRIC or passport numbers
-- Singpass information
-- Passwords
-- OTPs
-- Banking details
-- Medical information
-- Private correspondence
-- Confidential business documents
+Questions may include:
 
-Display:
+- What was agreed?
+- When was it agreed?
+- What was paid?
+- How much was paid?
+- When was payment made?
+- What exactly was promised?
+- What exactly happened?
+- When did each event happen?
+- What outcome did you originally expect?
+- What outcome are you now requesting?
+- What did the other party say?
+- Did you give the other party an opportunity to respond or fix the issue?
+- What documents support each important fact?
+- Which facts are uncertain?
+- Which details are based only on assumptions?
 
-“This is an independent prototype and is not affiliated with or endorsed by the Singapore Courts.”
+Ask only questions relevant to the user’s issue.
 
-## Technical architecture
+## Evidence mapping
+
+Every important factual assertion should be mapped to one of:
+
+1. User’s original account
+2. Uploaded evidence
+3. Official procedural source
+4. Unverified information
+
+Use this structure:
+
+| Assertion | Source | Status | Follow-up |
+|---|---|---|---|
+| Payment was made | Receipt uploaded by user | Supported by document | Check amount and date |
+| Refund was requested | WhatsApp screenshot | Supported by document | Confirm screenshot date |
+| Poor photographs were caused by health condition | User’s inference | Unverified | Ask for supporting evidence |
+
+The system must ask:
+
+- “What evidence supports this?”
+- “Is this based on something you saw, something someone told you, or your own assumption?”
+- “Do you have a document showing this?”
+- “Is there evidence that may point in the other direction?”
+
+## Contradiction detection
+
+Compare information across:
+
+- User’s story
+- Speech transcription
+- Uploaded documents
+- Timeline
+- Form entries
+- Previous answers
+
+Flag contradictions such as:
+
+- User states $500 was paid but receipt shows $650
+- User states the agreement happened in June but a message shows July
+- User states a refund was requested but no communication is provided
+- User names an individual but the evidence names a company
+- User states the business is active but the ACRA information suggests otherwise
+
+When a contradiction exists:
+
+1. Highlight it neutrally.
+2. Show both conflicting values.
+3. Ask the user to clarify.
+4. Do not silently select one value.
+5. Do not proceed to a final draft until the user confirms how it should be represented.
 
 Use:
 
-- Chrome Manifest V3
-- Content script
-- Side panel or floating panel
-- Background service worker
-- `chrome.storage.local`
-- Configuration-driven walkthrough steps
-- Structured JSON state
-- A mock CJTS webpage for development
+“I found two different amounts in the information provided. Please check which amount is accurate, or explain why both amounts appear.”
 
-Do not rely entirely on the live CJTS website.
+## Mandatory counter-argument step
 
-Use feature flags for:
+Before finalising a claim summary, the assistant must challenge confirmation bias.
 
-- `walkthrough`
-- `chatbot`
-- `voiceInput`
-- `translation`
-- `evidenceOrganiser`
-- `mockMode`
+Ask:
 
-## Suggested project structure
+- “What might the respondent say happened?”
+- “What explanation might the respondent give?”
+- “Which facts could make your position more difficult?”
+- “Is there any document that may support the respondent’s version?”
+- “Did the respondent offer an explanation, repair, refund, replacement, or alternative?”
+- “Are there facts that do not fit your current account?”
+- “What evidence would you want the respondent to produce?”
 
-```text
-src/
-├── background/
-│   └── service-worker.js
-├── content/
-│   └── cjts-detector.js
-├── sidepanel/
-│   ├── App.jsx
-│   ├── Chatbot.jsx
-│   ├── Walkthrough.jsx
-│   ├── VoiceInput.jsx
-│   ├── EvidenceOrganiser.jsx
-│   └── ReviewScreen.jsx
-├── data/
-│   ├── officialSources.js
-│   ├── walkthroughSteps.js
-│   └── translations.js
-├── state/
-│   └── caseState.js
-└── utils/
-    ├── semanticFieldMatcher.js
-    └── privacy.js
+Show two separate views:
+
+1. User’s current account
+2. Possible respondent position
+
+The respondent position must be labelled as a possible argument, not as a fact.
+
+The purpose is to identify missing information and evidence, not to argue against the user.
+
+## Preliminary readiness check
+
+The readiness check may assess whether the file appears:
+
+- Ready for further review
+- Missing important information
+- Contains unresolved contradictions
+- Requires official verification
+- May require human or legal assistance
+
+Do not call the result a prediction of success.
+
+Do not use a numerical “chance of winning” score.
+
+Use statuses such as:
+
+- Known
+- Unclear
+- Missing
+- Contradictory
+- Unverified
+- Requires official confirmation
+
+## Official-source retrieval
+
+Procedural information must come from official sources rather than model memory.
+
+Important topics include:
+
+- SCT eligibility
+- Claim limits
+- Time limits
+- Filing fees
+- Required documents
+- Respondent details
+- ACRA information
+- Service
+- Consultation
+- Enforcement or execution
+- Which court or tribunal may be appropriate
+
+If the information cannot be verified from an official source, say:
+
+“I do not have a verified answer. Please check the current Singapore Courts or CJTS guidance, or obtain appropriate legal assistance.”
+
+Link important procedural assertions to the relevant official source.
+
+## Evidence upload and document preparation
+
+Allow users to:
+
+- Drag and drop documents
+- Upload images, PDFs, screenshots, receipts, messages, and photographs
+- Add document descriptions
+- Associate documents with timeline events
+- Mark documents as original, copy, screenshot, or photograph
+- Review extracted text before it is used
+- Delete documents
+
+The prototype may convert uploaded images into a PDF evidence bundle for user review.
+
+However:
+
+- Do not modify the original image
+- Preserve the original file
+- Clearly label generated PDFs as compiled copies
+- Do not claim that conversion verifies authenticity
+- Do not silently OCR or translate evidence without showing the result
+- Do not submit the bundle automatically
+
+## Outputs to prepare
+
+After sufficient information has been collected, prepare:
+
+1. Chronology
+2. Party matrix
+3. Agreement summary
+4. Issue matrix
+5. Requested outcome
+6. Evidence bundle index
+7. Missing-information checklist
+8. Contradiction report
+9. Possible respondent position
+10. Pre-filing readiness checklist
+11. Factual draft for user review
+
+These outputs are organisational tools, not legal advice.
+
+## Issue matrix
+
+Use a non-exhaustive issue matrix:
+
+| Topic | What the user said | Evidence | Status | Clarification needed |
+|---|---|---|---|---|
+| Parties | Photographer operated a one-person business | Business page and messages | Unclear | Confirm legal name and entity |
+| Agreement | Photography service was hired for wedding | Messages and payment record | Partially supported | Confirm agreed deliverables |
+| Performance | Photographs were poor or unusable | Photographs | User evidence available | Identify specific defects |
+| Health condition | User believes this caused poor performance | User statement | Inference | Ask whether supporting evidence exists |
+| Requested outcome | Raw unedited photographs or refund | User statement | User-confirmed if accepted | Confirm preferred remedy |
+
+Do not present this matrix as a complete legal test.
+
+## Escalation
+
+If the system identifies a matter requiring human or official help, provide:
+
+- The reason for escalation
+- The relevant official organisation
+- The official webpage
+- Available contact or access instructions
+- A reminder that the assistant cannot decide the legal issue
+
+Possible escalation topics include:
+
+- Unclear jurisdiction
+- Possible limitation issue
+- Unclear respondent identity
+- Bankruptcy or insolvency
+- Complex business structure
+- Privacy or confidentiality concern
+- Enforcement or execution
+- Foreign-law issue
+- Serious contradiction
+- Matter outside SCT scope

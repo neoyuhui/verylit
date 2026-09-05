@@ -1,2 +1,1 @@
 # verylit
-print('hello world')
