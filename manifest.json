@@ -7,6 +7,11 @@
     "sidePanel",
     "storage"
   ],
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "http://127.0.0.1:8000/*",
+    "https://opulent-capybara-97r5w4r6wx9rfxx69-8000.app.github.dev/*"
+  ],
   "action": {
     "default_title": "Open CJTS Co-Pilot"
   },

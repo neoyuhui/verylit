@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Min Law SCT Assistant — Evidence Builder (demo)</title>
+<style>
+  :root {
+    --ink: #1c2430;
+    --ink-soft: #5b6572;
+    --line: #dfe3e8;
+    --card: #ffffff;
+    --bg: #f4f6f8;
+    --accent: #2952a3;
+    --accent-soft: #eaf0fb;
+    --warn: #a35a29;
+    --warn-soft: #fbf1ea;
+    --new-row: #eef7ee;
+    --radius: 10px;
+    font-size: 16px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+  header.top { margin-bottom: 1.5rem; }
+  header.top h1 { font-size: 1.4rem; margin: 0 0 0.25rem; }
+  header.top p { margin: 0; color: var(--ink-soft); font-size: 0.9rem; }
+
+  .steps { display: flex; gap: 0.5rem; margin: 1.25rem 0 2rem; flex-wrap: wrap; }
+  .step-pill {
+    font-size: 0.78rem; padding: 0.3rem 0.7rem; border-radius: 999px;
+    background: var(--line); color: var(--ink-soft); font-weight: 600;
+  }
+  .step-pill.active { background: var(--accent); color: white; }
+  .step-pill.done { background: var(--new-row); color: #2c6e2c; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.4rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 1px 2px rgba(20, 30, 50, 0.04);
+  }
+  .card.disabled { opacity: 0.45; pointer-events: none; }
+  .card h2 { font-size: 1.05rem; margin: 0 0 0.3rem; }
+  .card .sub { color: var(--ink-soft); font-size: 0.85rem; margin: 0 0 0.9rem; }
+
+  textarea, input[type="text"] {
+    width: 100%; box-sizing: border-box; font-family: inherit; font-size: 0.95rem;
+    padding: 0.6rem 0.7rem; border: 1px solid var(--line); border-radius: 8px; resize: vertical;
+  }
+  textarea { min-height: 140px; }
+  textarea:focus, input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .counter { font-size: 0.8rem; color: var(--ink-soft); margin-top: 0.3rem; }
+  .counter.warn { color: var(--warn); }
+  .counter.stop { color: #b23b3b; font-weight: 600; }
+
+  button {
+    font: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    border: none; border-radius: 8px; padding: 0.55rem 1.05rem;
+    background: var(--accent); color: white; margin-top: 0.9rem;
+  }
+  button.secondary { background: var(--accent-soft); color: var(--accent); }
+  button.ghost { background: transparent; color: var(--ink-soft); padding: 0.4rem 0.6rem; margin-top: 0; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button + button { margin-left: 0.6rem; }
+
+  .file-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; padding: 0.3rem 0; }
+  .file-row .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .filelist { margin: 0.6rem 0; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 0.6rem; font-size: 0.85rem; }
+  th, td { border: 1px solid var(--line); padding: 0.45rem 0.5rem; vertical-align: top; text-align: left; }
+  th { background: #fafbfc; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-soft); }
+  tr.new-row td { background: var(--new-row); }
+  td input[type="text"], td select { border: 1px solid transparent; background: transparent; padding: 0.15rem; width: 100%; font-size: 0.85rem; }
+  td input[type="text"]:hover, td select:hover { border-color: var(--line); background: white; }
+  .row-num { width: 2.2rem; color: var(--ink-soft); }
+  .new-badge { font-size: 0.65rem; background: #2c6e2c; color: white; border-radius: 999px; padding: 0.05rem 0.4rem; margin-left: 0.3rem; }
+
+  .category-grid { display: grid; gap: 0.5rem; margin-top: 0.8rem; }
+  .category-option {
+    display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.6rem 0.7rem;
+    border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-size: 0.88rem;
+  }
+  .category-option.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .category-option input { margin-top: 0.15rem; }
+  .suggestion-note { background: var(--accent-soft); border-radius: 8px; padding: 0.7rem 0.85rem; font-size: 0.85rem; margin-top: 0.6rem; }
+
+  .disclaimer { background: var(--warn-soft); border: 1px solid #e4c9ab; border-radius: 8px; padding: 0.8rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; }
+  .closing-block { margin-top: 1rem; }
+  .closing-block h3 { font-size: 0.9rem; margin-bottom: 0.4rem; }
+  .closing-block .item { border-left: 3px solid var(--line); padding: 0.4rem 0 0.4rem 0.7rem; margin-bottom: 0.5rem; font-size: 0.85rem; }
+
+  .flags { font-size: 0.78rem; color: var(--ink-soft); margin-top: 0.8rem; border-top: 1px dashed var(--line); padding-top: 0.6rem; }
+  .error { color: #b23b3b; font-size: 0.85rem; margin-top: 0.6rem; }
+  .locked-banner { background: var(--new-row); border: 1px solid #b9d9b9; color: #2c6e2c; border-radius: 8px; padding: 0.7rem 0.9rem; font-size: 0.88rem; font-weight: 600; }
+  .spinner-text { font-size: 0.85rem; color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <h1>SCT Evidence Builder</h1>
+    <p>Demo harness for the Issue Distillation → Evidence List → Contest-Evidence pipeline. Not the Chrome extension UI, and not legal advice.</p>
+  </header>
+
+  <div class="steps">
+    <span class="step-pill active" id="pill-1">1 · Your account</span>
+    <span class="step-pill" id="pill-2">2 · Evidence list</span>
+    <span class="step-pill" id="pill-3">3 · Category</span>
+    <span class="step-pill" id="pill-4">4 · If disputed</span>
+    <span class="step-pill" id="pill-5">5 · Review &amp; confirm</span>
+  </div>
+
+  <!-- STEP 1 -->
+  <section class="card" id="card-1">
+    <h2>1. Tell us what happened</h2>
+    <p class="sub">Your own words. This is restated as facts, gaps, and steps — never turned into a legal conclusion.</p>
+    <textarea id="account-input" placeholder="e.g. I hired a photographer for my wedding off Instagram..."></textarea>
+    <div class="counter" id="account-counter">0 words</div>
+    <button id="btn-distill">Generate structured summary</button>
+    <div id="distill-status" class="spinner-text"></div>
+
+    <div id="distill-output-wrap" style="display:none; margin-top:1rem;">
+      <p class="sub">Editable — correct anything before it's used downstream. This step's own inferences are folded into the text below rather than itemised, so edit the passage directly wherever you'd dismiss or adjust an assumption.</p>
+      <textarea id="distill-output" style="min-height:220px;"></textarea>
+      <div id="distill-flags" class="flags"></div>
+      <button id="btn-confirm-step1" class="secondary">Looks good — continue to evidence list</button>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="card disabled" id="card-2">
+    <h2>2. Build your evidence list</h2>
+    <p class="sub">Upload message screenshots, receipts, or registry printouts (images or PDF). These are sent directly to Claude and are never saved on the server.</p>
+    <input type="file" id="file-input" multiple accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" />
+    <div class="filelist" id="filelist"></div>
+    <button id="btn-build-evidence">Build evidence list</button>
+    <div id="evidence-status" class="spinner-text"></div>
+
+    <div id="evidence-table-wrap" style="display:none; margin-top:1rem;">
+      <table id="evidence-table">
+        <thead>
+          <tr><th class="row-num">#</th><th>What it shows</th><th>Document</th><th>Source</th><th style="width:8.5rem;">Missing?</th><th></th></tr>
+        </thead>
+        <tbody id="evidence-tbody"></tbody>
+      </table>
+      <button class="ghost" id="btn-add-row">+ Add row manually</button>
+      <div id="evidence-flags" class="flags"></div>
+      <button id="btn-confirm-step2" class="secondary">Looks good — continue</button>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="card disabled" id="card-3">
+    <h2>3. Confirm the claim category</h2>
+    <p class="sub">Used only to pick the right list of common opposing-party positions to check your evidence against — not shown anywhere as a legal characterisation of your dispute.</p>
+    <button id="btn-suggest-category">Suggest a category</button>
+    <div id="category-status" class="spinner-text"></div>
+    <div id="suggestion-note" class="suggestion-note" style="display:none;"></div>
+    <div class="category-grid" id="category-grid" style="display:none;"></div>
+    <button id="btn-confirm-category" class="secondary" style="display:none;">Confirm category</button>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="card disabled" id="card-4">
+    <h2>4. Check what you'll need if disputed</h2>
+    <p class="sub">Re-reads your files and account against the confirmed category's common opposing-party positions.</p>
+    <button id="btn-build-contest">Check</button>
+    <div id="contest-status" class="spinner-text"></div>
+
+    <div id="contest-output-wrap" style="display:none; margin-top:1rem;">
+      <div class="disclaimer" id="contest-disclaimer"></div>
+      <div class="closing-block">
+        <h3>Already covered by existing rows</h3>
+        <div id="already-covered-list"></div>
+      </div>
+      <div class="closing-block">
+        <h3>Points to check officially (not evidence questions)</h3>
+        <div id="points-to-check-list"></div>
+      </div>
+      <div class="closing-block">
+        <h3>Inconsistencies</h3>
+        <div id="inconsistencies-list"></div>
+      </div>
+      <div class="closing-block">
+        <h3>What you still cannot show</h3>
+        <p id="still-cannot-show" class="item"></p>
+      </div>
+      <div id="contest-flags" class="flags"></div>
+      <button id="btn-confirm-step4" class="secondary">Continue to review</button>
+    </div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="card disabled" id="card-5">
+    <h2>5. Review &amp; confirm</h2>
+    <p class="sub">Nothing here is treated as final until you confirm. Confirming locks editing — use "Edit again" to unlock.</p>
+    <div id="locked-banner" style="display:none;" class="locked-banner"></div>
+    <button id="btn-confirm-final">Confirm as final</button>
+    <button id="btn-unlock" class="ghost" style="display:none;">Edit again</button>
+  </section>
+</div>
+
+<script>
+  const SOFT_WORD_LIMIT = 500;
+  const HARD_WORD_LIMIT = 1000;
+
+  const state = {
+    files: [],          // File[]
+    prompt1Output: "",
+    evidenceRows: [],    // {row_number, what_it_shows, document, source, missing_status, missing_detail}
+    category: null,
+    confirmed: false,
+  };
+
+  function wordCount(text) { return text.trim().split(/\s+/).filter(Boolean).length; }
+
+  function setPill(n, cls) {
+    document.getElementById(`pill-${n}`).className = `step-pill ${cls}`;
+  }
+
+  function unlockCard(n) {
+    document.getElementById(`card-${n}`).classList.remove("disabled");
+    setPill(n, "active");
+  }
+
+  function completeCard(n) {
+    setPill(n, "done");
+  }
+
+  // ---------- STEP 1 ----------
+  const accountInput = document.getElementById("account-input");
+  const accountCounter = document.getElementById("account-counter");
+  accountInput.addEventListener("input", () => {
+    const words = wordCount(accountInput.value);
+    accountCounter.textContent = `${words} words`;
+    accountCounter.className = "counter";
+    if (words > HARD_WORD_LIMIT) {
+      accountCounter.classList.add("stop");
+      accountCounter.textContent += ` — over ${HARD_WORD_LIMIT} words, consider splitting unrelated issues`;
+    } else if (words > SOFT_WORD_LIMIT) {
+      accountCounter.classList.add("warn");
+      accountCounter.textContent += ` — longer than most accounts need`;
+    }
+  });
+
+  document.getElementById("btn-distill").addEventListener("click", async () => {
+    const text = accountInput.value.trim();
+    if (!text) return;
+    const btn = document.getElementById("btn-distill");
+    const status = document.getElementById("distill-status");
+    btn.disabled = true; status.textContent = "Generating...";
+
+    try {
+      const res = await fetch("/api/distill-issue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_message: text }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || res.statusText);
+
+      document.getElementById("distill-output").value = data.reply;
+      document.getElementById("distill-output-wrap").style.display = "block";
+      document.getElementById("distill-flags").textContent = data.guardrail_flags?.length
+        ? `[dev note] guardrail flagged: ${data.guardrail_flags.join(", ")}`
+        : "";
+      status.textContent = "";
+    } catch (err) {
+      status.innerHTML = `<span class="error">Failed: ${err.message}. Is the backend running?</span>`;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById("btn-confirm-step1").addEventListener("click", () => {
+    state.prompt1Output = document.getElementById("distill-output").value;
+    completeCard(1);
+    unlockCard(2);
+    document.getElementById("card-2").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- STEP 2 ----------
+  const fileInput = document.getElementById("file-input");
+  const filelistEl = document.getElementById("filelist");
+
+  function renderFileList() {
+    filelistEl.innerHTML = "";
+    state.files.forEach((f, i) => {
+      const row = document.createElement("div");
+      row.className = "file-row";
+      row.innerHTML = `<span class="name">${f.name}</span>`;
+      const rm = document.createElement("button");
+      rm.className = "ghost"; rm.textContent = "Remove";
+      rm.onclick = () => { state.files.splice(i, 1); renderFileList(); };
+      row.appendChild(rm);
+      filelistEl.appendChild(row);
+    });
+  }
+
+  fileInput.addEventListener("change", () => {
+    state.files.push(...Array.from(fileInput.files));
+    fileInput.value = "";
+    renderFileList();
+  });
+
+  function missingLabel(status) {
+    return { no: "No", no_note_it: "No — note it", yes: "Yes", none_found: "None found" }[status] || status;
+  }
+
+  function renderEvidenceTable() {
+    const tbody = document.getElementById("evidence-tbody");
+    tbody.innerHTML = "";
+    state.evidenceRows
+      .sort((a, b) => a.row_number - b.row_number)
+      .forEach((row) => {
+        const tr = document.createElement("tr");
+        if (row._new) tr.className = "new-row";
+        tr.innerHTML = `
+          <td class="row-num">${row.row_number}${row._new ? '<span class="new-badge">new</span>' : ""}</td>
+          <td><input type="text" data-field="what_it_shows" value="${escapeAttr(row.what_it_shows)}"></td>
+          <td><input type="text" data-field="document" value="${escapeAttr(row.document)}"></td>
+          <td><input type="text" data-field="source" value="${escapeAttr(row.source)}"></td>
+          <td>
+            <select data-field="missing_status">
+              ${["no", "no_note_it", "yes", "none_found"].map(s =>
+                `<option value="${s}" ${s === row.missing_status ? "selected" : ""}>${missingLabel(s)}</option>`
+              ).join("")}
+            </select>
+          </td>
+          <td><button class="ghost" data-action="delete">✕</button></td>
+        `;
+        tr.querySelectorAll("input, select").forEach((el) => {
+          el.addEventListener("input", () => { row[el.dataset.field] = el.value; });
+        });
+        tr.querySelector("[data-action='delete']").addEventListener("click", () => {
+          state.evidenceRows = state.evidenceRows.filter((r) => r !== row);
+          renderEvidenceTable();
+        });
+        tbody.appendChild(tr);
+      });
+  }
+
+  function escapeAttr(s) { return (s || "").replace(/"/g, "&quot;"); }
+
+  document.getElementById("btn-add-row").addEventListener("click", () => {
+    const nextNum = Math.max(0, ...state.evidenceRows.map((r) => r.row_number)) + 1;
+    state.evidenceRows.push({ row_number: nextNum, what_it_shows: "", document: "", source: "", missing_status: "yes", missing_detail: "" });
+    renderEvidenceTable();
+  });
+
+  document.getElementById("btn-build-evidence").addEventListener("click", async () => {
+    const btn = document.getElementById("btn-build-evidence");
+    const status = document.getElementById("evidence-status");
+    btn.disabled = true; status.textContent = "Reading files and building your list...";
+
+    try {
+      const fd = new FormData();
+      fd.append("prompt1_output", state.prompt1Output);
+      state.files.forEach((f) => fd.append("files", f));
+
+      const res = await fetch("/api/build-evidence-list", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || res.statusText);
+
+      state.evidenceRows = data.rows;
+      renderEvidenceTable();
+      document.getElementById("evidence-table-wrap").style.display = "block";
+      document.getElementById("evidence-flags").textContent = data.guardrail_flags?.length
+        ? `[dev note] guardrail flagged: ${data.guardrail_flags.join(", ")}`
+        : "";
+      status.textContent = "";
+    } catch (err) {
+      status.innerHTML = `<span class="error">Failed: ${err.message}</span>`;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById("btn-confirm-step2").addEventListener("click", () => {
+    completeCard(2);
+    unlockCard(3);
+    document.getElementById("card-3").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- STEP 3 ----------
+  document.getElementById("btn-suggest-category").addEventListener("click", async () => {
+    const btn = document.getElementById("btn-suggest-category");
+    const status = document.getElementById("category-status");
+    btn.disabled = true; status.textContent = "Reading your account...";
+
+    try {
+      const fd = new FormData();
+      fd.append("prompt1_output", state.prompt1Output);
+      const res = await fetch("/api/infer-category", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || res.statusText);
+
+      document.getElementById("suggestion-note").style.display = "block";
+      document.getElementById("suggestion-note").innerHTML =
+        `<strong>Suggested:</strong> ${data.suggested_category_label}<br>${data.reasoning}<br>` +
+        `<em>For evidence-checking purposes only — not a characterisation of your dispute. Change it below if it doesn't fit.</em>`;
+
+      const grid = document.getElementById("category-grid");
+      grid.style.display = "grid";
+      grid.innerHTML = "";
+      data.all_categories.forEach((c) => {
+        const label = document.createElement("label");
+        label.className = "category-option" + (c.key === data.suggested_category ? " selected" : "");
+        label.innerHTML = `<input type="radio" name="category" value="${c.key}" ${c.key === data.suggested_category ? "checked" : ""}> ${c.label}`;
+        label.querySelector("input").addEventListener("change", () => {
+          grid.querySelectorAll(".category-option").forEach((el) => el.classList.remove("selected"));
+          label.classList.add("selected");
+        });
+        grid.appendChild(label);
+      });
+
+      document.getElementById("btn-confirm-category").style.display = "inline-block";
+      status.textContent = "";
+    } catch (err) {
+      status.innerHTML = `<span class="error">Failed: ${err.message}</span>`;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById("btn-confirm-category").addEventListener("click", () => {
+    const checked = document.querySelector("input[name='category']:checked");
+    if (!checked) return;
+    state.category = checked.value;
+    completeCard(3);
+    unlockCard(4);
+    document.getElementById("card-4").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- STEP 4 ----------
+  document.getElementById("btn-build-contest").addEventListener("click", async () => {
+    const btn = document.getElementById("btn-build-contest");
+    const status = document.getElementById("contest-status");
+    btn.disabled = true; status.textContent = "Checking your files against common positions...";
+
+    try {
+      const fd = new FormData();
+      fd.append("prompt1_output", state.prompt1Output);
+      fd.append("evidence_rows_json", JSON.stringify(state.evidenceRows));
+      fd.append("category", state.category);
+      state.files.forEach((f) => fd.append("files", f));
+
+      const res = await fetch("/api/build-contest-evidence", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || res.statusText);
+
+      // Fold new rows into the same table, marked as new
+      data.new_rows.forEach((r) => state.evidenceRows.push({ ...r, source: `${r.source_type === "other_party_quote" ? "Other party said" : "Common position"}: "${r.source_text}"`, _new: true }));
+      renderEvidenceTable();
+
+      document.getElementById("contest-disclaimer").textContent = data.disclaimer;
+
+      const already = document.getElementById("already-covered-list");
+      already.innerHTML = data.already_covered.length
+        ? data.already_covered.map((a) => `<div class="item"><strong>${escapeHtml(a.position_or_excuse)}</strong> — covered by row ${a.covered_by_row}. ${escapeHtml(a.note)}</div>`).join("")
+        : `<p class="sub">None.</p>`;
+
+      const points = document.getElementById("points-to-check-list");
+      points.innerHTML = data.points_to_check.length
+        ? data.points_to_check.map((p) => `<div class="item"><strong>${escapeHtml(p.topic)}</strong><br>${escapeHtml(p.official_source)}</div>`).join("")
+        : `<p class="sub">None.</p>`;
+
+      const inconsist = document.getElementById("inconsistencies-list");
+      inconsist.innerHTML = data.inconsistencies.length
+        ? data.inconsistencies.map((i) => `<div class="item"><strong>${escapeHtml(i.topic)}</strong><br>A: ${escapeHtml(i.version_a)}<br>B: ${escapeHtml(i.version_b)}<br><em>${escapeHtml(i.instruction)}</em></div>`).join("")
+        : `<p class="sub">None found.</p>`;
+
+      document.getElementById("still-cannot-show").textContent = data.still_cannot_show;
+
+      document.getElementById("contest-output-wrap").style.display = "block";
+      document.getElementById("contest-flags").textContent = data.guardrail_flags?.length
+        ? `[dev note] guardrail flagged: ${data.guardrail_flags.join(", ")}`
+        : "";
+      status.textContent = "";
+    } catch (err) {
+      status.innerHTML = `<span class="error">Failed: ${err.message}</span>`;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  function escapeHtml(s) {
+    const d = document.createElement("div");
+    d.textContent = s || "";
+    return d.innerHTML;
+  }
+
+  document.getElementById("btn-confirm-step4").addEventListener("click", () => {
+    completeCard(4);
+    unlockCard(5);
+    document.getElementById("card-5").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- STEP 5 ----------
+  function setLocked(locked) {
+    document.querySelectorAll("input, textarea, select, button").forEach((el) => {
+      if (el.id === "btn-unlock" || el.id === "btn-confirm-final") return;
+      el.disabled = locked;
+    });
+    document.getElementById("btn-confirm-final").style.display = locked ? "none" : "inline-block";
+    document.getElementById("btn-unlock").style.display = locked ? "inline-block" : "none";
+    const banner = document.getElementById("locked-banner");
+    banner.style.display = locked ? "block" : "none";
+    if (locked) banner.textContent = `Confirmed as final at ${new Date().toLocaleString()}. This still requires independent human verification before filing.`;
+  }
+
+  document.getElementById("btn-confirm-final").addEventListener("click", () => {
+    state.confirmed = true;
+    completeCard(5);
+    setLocked(true);
+  });
+
+  document.getElementById("btn-unlock").addEventListener("click", () => {
+    state.confirmed = false;
+    setLocked(false);
+  });
+</script>
+
+</body>
+</html>

@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "build:css": "node build-css.js"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "daisyui": "^5.7.28",

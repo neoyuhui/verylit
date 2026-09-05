@@ -4,17 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CJTS Legal Co-Pilot</title>
-  <!-- Link your compiled Tailwind / daisyUI CSS -->
+  <!-- Compiled Tailwind / daisyUI CSS — build with: node build-css.js -->
   <link rel="stylesheet" href="./dist/output.css">
 </head>
 <body class="bg-base-200 min-h-screen flex flex-col font-sans p-4 gap-4">
+
   <!-- 1. Header & Language Selector -->
   <header class="navbar bg-base-100 rounded-box shadow-md px-4">
     <div class="flex-1">
       <h1 class="text-lg font-bold text-primary">⚖️ CJTS Co-Pilot</h1>
     </div>
     <div class="flex-none">
-      <select class="select select-bordered select-sm w-full max-w-xs">
+      <select class="select select-bordered select-sm w-full max-w-xs" disabled title="Multi-language view is planned for a later step; the pipeline runs in English for now.">
         <option selected>English</option>
         <option>华语 (Mandarin)</option>
         <option>Bahasa Melayu</option>
@@ -22,42 +23,40 @@
       </select>
     </div>
   </header>
+
   <!-- 2. Step Progress Bar -->
+  <!-- Relabelled from the original Eligibility/Entity Check/Fact Intake/Summary mockup to match
+       what's actually wired up: Prompt 1 (account), Prompt 2 (evidence), category, Prompt 4 (contest).
+       Eligibility checklist (Feature 2 in CLAUDE.md) is a separate, not-yet-built step — see repo notes;
+       re-insert it ahead of "Account" here once it exists. -->
   <div class="bg-base-100 p-4 rounded-box shadow-md">
-    <ul class="steps steps-vertical sm:steps-horizontal w-full text-xs">
-      <li class="step step-primary">Eligibility</li>
-      <li class="step">Entity Check</li>
-      <li class="step">Fact Intake</li>
-      <li class="step">Summary</li>
+    <ul class="steps steps-vertical sm:steps-horizontal w-full text-xs" id="step-bar">
+      <li class="step step-primary" data-step="1">Account</li>
+      <li class="step" data-step="2">Evidence</li>
+      <li class="step" data-step="3">Category</li>
+      <li class="step" data-step="4">If Disputed</li>
     </ul>
   </div>
+
   <!-- 3. Chat Messages Area -->
-  <main class="flex-1 bg-base-100 p-4 rounded-box shadow-md overflow-y-auto flex flex-col gap-3 max-h-[400px]">
-    
-    <!-- AI Welcome Message -->
-    <div class="chat chat-start">
-      <div class="chat-header text-xs text-gray-500 mb-1">Co-Pilot Assistant</div>
-      <div class="chat-bubble chat-bubble-primary text-sm">
-        Hello! I can help you prepare your Small Claims Tribunals (SCT) filing on CJTS. Would you like to check your claim eligibility first?
-      </div>
-    </div>
-    <!-- Example User Message -->
-    <div class="chat chat-end">
-      <div class="chat-header text-xs text-gray-500 mb-1">You</div>
-      <div class="chat-bubble bg-gray-200 text-gray-800 text-sm">
-        Yes, I want to claim $5,000 for unpaid design work.
-      </div>
-    </div>
+  <main id="chat" class="flex-1 bg-base-100 p-4 rounded-box shadow-md overflow-y-auto flex flex-col gap-3 max-h-[520px]">
+    <!-- populated entirely by sidepanel.js -->
   </main>
-  <!-- 4. Input Controls -->
-  <footer class="bg-base-100 p-3 rounded-box shadow-md flex flex-col gap-2">
+
+  <!-- 4. Input Controls (used for the Step 1 account narrative only — everything after that
+       is driven by buttons/tables inside the chat bubbles themselves, not further free text) -->
+  <footer id="composer" class="bg-base-100 p-3 rounded-box shadow-md flex flex-col gap-2">
+    <div class="text-xs text-gray-500" id="composer-hint">Tell us what happened, in your own words.</div>
     <div class="flex gap-2">
-      <input type="text" placeholder="Type your answer or claim detail..." class="input input-bordered w-full text-sm" />
-      <button class="btn btn-primary text-white">Send</button>
+      <input id="composer-input" type="text" placeholder="e.g. I hired a photographer for my wedding off Instagram..."
+             class="input input-bordered w-full text-sm" />
+      <button id="composer-send" class="btn btn-primary text-white">Send</button>
     </div>
-    <button class="btn btn-outline btn-accent w-full gap-2">
+    <button class="btn btn-outline btn-accent w-full gap-2" disabled title="Voice input is planned for a later step (Feature 4) — not wired up yet.">
       🎤 Tap to Speak (Voice Input)
     </button>
   </footer>
+
+  <script src="./sidepanel.js"></script>
 </body>
 </html>
