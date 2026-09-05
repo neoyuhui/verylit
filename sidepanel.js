@@ -169,7 +169,18 @@ function addBubble(role, innerHtml, { header } = {}) {
       ? `<div class="chat-header text-xs text-gray-500 mb-1">You</div>`
       : `<div class="chat-header text-xs text-gray-500 mb-1">Co-Pilot Assistant</div>`;
 
-  const bubbleClass = role === "user" ? "chat-bubble bg-gray-200 text-gray-800 text-sm" : "chat-bubble chat-bubble-primary text-sm";
+  // Assistant bubbles get w-full: daisyUI's chat-bubble defaults to
+  // width:fit-content, which is fine for plain text (text still wraps
+  // normally) but breaks once a bubble's content is swapped for a wide
+  // widget — the Step 1 review <textarea> or the evidence <table>, both
+  // w-full themselves. A percentage-width child doesn't contribute to its
+  // parent's fit-content calculation, so the bubble stayed sized to the
+  // short "thinking..." placeholder and the widget rendered squeezed into
+  // that tiny box. User bubbles (plain account text only) keep the default
+  // fit-content sizing so short messages don't stretch full width.
+  const bubbleClass = role === "user"
+    ? "chat-bubble bg-gray-200 text-gray-800 text-sm"
+    : "chat-bubble chat-bubble-primary text-sm w-full";
 
   wrap.innerHTML = `${headerHtml}<div class="${bubbleClass}" style="max-width: 100%;"></div>`;
   const bubble = wrap.querySelector(".chat-bubble");

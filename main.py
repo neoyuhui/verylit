@@ -124,9 +124,23 @@ def _files_to_blocks(files: list[UploadFile]) -> list[dict]:
 async def distill_issue(payload: DistillRequest):
     """Feature 1 — Issue Distillation. Stateless: one free-text message in, one structured problem statement out."""
     try:
+        # max_tokens raised from llm_client's 1024 default: the distillation
+        # prompt asks for multi-section prose (facts/gap/steps per matter,
+        # plus two closing blocks) which was getting cut off mid-generation
+        # for anything but a very short account — surfaced as "incomplete
+        # text" in the side panel. 4096 matches the other longer-output
+        # endpoints below (build-evidence-list, build-contest-evidence).
+        # effort dropped from llm_client's "high" default to "medium" here:
+        # "high" was adding noticeable latency for a prompt that mainly
+        # needs correct instruction-following (gap test, no conclusions),
+        # not deep multi-step reasoning. If you see rule violations creep
+        # back in (e.g. guardrail_flags showing up more often), raise this
+        # back to "high" and accept the slower response instead.
         reply = call_llm(
             ISSUE_DISTILLATION_PROMPT,
             [{"role": "user", "content": payload.user_message}],
+            max_tokens=4096,
+            effort="medium",
         )
 
         flags = scan_for_leakage(reply)
